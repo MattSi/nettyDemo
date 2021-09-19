@@ -3,12 +3,13 @@ package org.propig.guice;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.propig.pico.Juicer;
 
-class SampleModule extends AbstractModule{
+class AppleJuiceModule extends AbstractModule{
     @Override
     protected void configure() {
-        super.configure();
+        bind(Juicer.class).to(DefaultJuicer.class);
+        bind(Peelable.class).to(Apple.class);
+        bind(Poolable.class).to(Banana.class);
     }
 }
 public class App {

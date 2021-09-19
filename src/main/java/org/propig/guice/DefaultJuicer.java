@@ -1,5 +1,6 @@
 package org.propig.guice;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
@@ -7,6 +8,7 @@ public class DefaultJuicer implements Juicer {
     private final Peelable peelable;
     private final Poolable poolable;
 
+    @Inject
     public DefaultJuicer(Peelable peelable, Poolable poolable) {
         this.peelable = peelable;
         this.poolable = poolable;
