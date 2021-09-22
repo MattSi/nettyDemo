@@ -33,6 +33,9 @@ public class AppTest
     }
 
     @Test
+    /**
+     * DSA数字签名，签名对象
+     */
     public void signObjectTest() throws NoSuchAlgorithmException,
             IOException, SignatureException, InvalidKeyException {
         // 对象签名
@@ -48,6 +51,9 @@ public class AppTest
     }
 
     @Test
+    /**
+     * DSA数字签名，签名消息
+     */
     public void signMessageTest() throws
             NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // 消息签名
@@ -68,6 +74,9 @@ public class AppTest
 
 
     @Test
+    /**
+     * 消息摘要
+     */
     public void digestMessageTest() throws NoSuchAlgorithmException {
 
         // JDK SHA1
@@ -97,6 +106,9 @@ public class AppTest
     }
 
     @Test
+    /**
+     * 对称加密例子， DES算法
+     */
     public void desCipherTest() throws
             NoSuchAlgorithmException, NoSuchPaddingException,
             InvalidKeyException, IOException {
@@ -130,8 +142,10 @@ public class AppTest
     }
 
     @Test
+    /**
+     * 判断密钥是否一致
+     */
     public void secretKeySpecTest() throws NoSuchAlgorithmException {
-
         KeyGenerator kg2 = KeyGenerator.getInstance("DESede");
         SecretKey secretKey3 = kg2.generateKey();
         byte[] key3 = secretKey3.getEncoded();
@@ -168,6 +182,9 @@ public class AppTest
         SecretKey secretKey = kg.generateKey();
         byte[] key = secretKey.getEncoded();
 
+        Provider[] providers = Security.getProviders();
+
         System.out.println(key);
+        System.out.println(providers);
     }
 }
