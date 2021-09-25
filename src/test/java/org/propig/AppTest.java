@@ -8,6 +8,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -16,6 +18,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
 /**
@@ -33,6 +36,9 @@ public class AppTest
     }
 
     @Test
+    /**
+     * DSA数字签名，签名对象
+     */
     public void signObjectTest() throws NoSuchAlgorithmException,
             IOException, SignatureException, InvalidKeyException {
         // 对象签名
@@ -48,6 +54,9 @@ public class AppTest
     }
 
     @Test
+    /**
+     * DSA数字签名，签名消息
+     */
     public void signMessageTest() throws
             NoSuchAlgorithmException, InvalidKeyException, SignatureException {
         // 消息签名
@@ -68,6 +77,9 @@ public class AppTest
 
 
     @Test
+    /**
+     * 消息摘要
+     */
     public void digestMessageTest() throws NoSuchAlgorithmException {
 
         // JDK SHA1
@@ -97,6 +109,9 @@ public class AppTest
     }
 
     @Test
+    /**
+     * 对称加密例子， DES算法
+     */
     public void desCipherTest() throws
             NoSuchAlgorithmException, NoSuchPaddingException,
             InvalidKeyException, IOException {
@@ -130,8 +145,10 @@ public class AppTest
     }
 
     @Test
+    /**
+     * 判断密钥是否一致
+     */
     public void secretKeySpecTest() throws NoSuchAlgorithmException {
-
         KeyGenerator kg2 = KeyGenerator.getInstance("DESede");
         SecretKey secretKey3 = kg2.generateKey();
         byte[] key3 = secretKey3.getEncoded();
@@ -168,6 +185,66 @@ public class AppTest
         SecretKey secretKey = kg.generateKey();
         byte[] key = secretKey.getEncoded();
 
+        Provider[] providers = Security.getProviders();
+
         System.out.println(key);
+        System.out.println(providers);
     }
+
+    @Test
+    public void read509() {
+        String fileName = "d:/temp/b.cer";
+        try(FileInputStream fis = new FileInputStream(fileName);
+            BufferedInputStream bis = new BufferedInputStream(fis)){
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            while (bis.available() > 0){
+                Certificate cert = cf.generateCertificate(bis);
+                System.out.println(cert.toString());
+            }
+        } catch (IOException | CertificateException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void PBEFromConsole() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        PBEKeySpec pbeKeySpec;
+        PBEParameterSpec pbeParameterSpec;
+        SecretKeyFactory keyFac;
+
+
+        //salt
+        byte[] salt = new SecureRandom().generateSeed(100);
+
+        //Iteration count
+        int count = 1000;
+
+        // Create PBE parameter set
+        pbeParameterSpec = new PBEParameterSpec(salt, count);
+
+        // Prompt user for encryption password
+        // Collect user password from console as char array, and convert
+        // it into a SecretKey object, using a PBE key factory.
+        char[] password = System.console().readPassword("Enter encryption password: ");
+        pbeKeySpec = new PBEKeySpec(password);
+        keyFac = SecretKeyFactory.getInstance("PBEWithHmacSHA256AndAES_256");
+        SecretKey  pbeKey = keyFac.generateSecret(pbeKeySpec);
+
+        // Create PBE Cipher
+        Cipher pbeCipher = Cipher.getInstance("PBEWithHmacSHA256AndAES_256");
+
+        // Initialize PBE Cipher with key and parameters
+        pbeCipher.init(Cipher.ENCRYPT_MODE, pbeKey, pbeParameterSpec);
+
+        // Our cleartext
+        byte[] clearText = "This is another example".getBytes(StandardCharsets.UTF_8);
+
+
+        byte[] cipherText = pbeCipher.doFinal(clearText);
+
+
+        System.out.println("H");
+
+    }
+
 }
