@@ -48,7 +48,7 @@ public class AppTest
         KeyPair keyPair = keyPairGen.generateKeyPair();
         Signature signature = Signature.getInstance(keyPairGen.getAlgorithm());
 
-        SignedObject signedObject = new SignedObject(data,keyPair.getPrivate(), signature);
+        SignedObject signedObject = new SignedObject(data, keyPair.getPrivate(), signature);
 
         Assert.assertTrue(signedObject.verify(keyPair.getPublic(),signature));
     }
