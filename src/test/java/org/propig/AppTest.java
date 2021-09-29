@@ -207,43 +207,28 @@ public class AppTest
     }
 
     @Test
-    public void PBEFromConsole() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        PBEKeySpec pbeKeySpec;
-        PBEParameterSpec pbeParameterSpec;
-        SecretKeyFactory keyFac;
+    public void aesgcmTest() throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException,
+            IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+        byte[] data = {
+                0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+                0x10
+        };
 
+        KeyGenerator kg = KeyGenerator.getInstance("AES");
+        kg.init(128);
+        SecretKey key = kg.generateKey();
 
-        //salt
-        byte[] salt = new SecureRandom().generateSeed(100);
+        Cipher encCipher = Cipher.getInstance("AES/GCM/NOPADDING");
+        encCipher.init(Cipher.ENCRYPT_MODE, key);
+        AlgorithmParameters ap = encCipher.getParameters();
+        byte[] enc = encCipher.doFinal(data);
 
-        //Iteration count
-        int count = 1000;
+        Cipher decCipher = Cipher.getInstance("AES/GCM/NOPADDING");
+        decCipher.init(Cipher.DECRYPT_MODE, key, ap);
 
-        // Create PBE parameter set
-        pbeParameterSpec = new PBEParameterSpec(salt, count);
-
-        // Prompt user for encryption password
-        // Collect user password from console as char array, and convert
-        // it into a SecretKey object, using a PBE key factory.
-        char[] password = System.console().readPassword("Enter encryption password: ");
-        pbeKeySpec = new PBEKeySpec(password);
-        keyFac = SecretKeyFactory.getInstance("PBEWithHmacSHA256AndAES_256");
-        SecretKey  pbeKey = keyFac.generateSecret(pbeKeySpec);
-
-        // Create PBE Cipher
-        Cipher pbeCipher = Cipher.getInstance("PBEWithHmacSHA256AndAES_256");
-
-        // Initialize PBE Cipher with key and parameters
-        pbeCipher.init(Cipher.ENCRYPT_MODE, pbeKey, pbeParameterSpec);
-
-        // Our cleartext
-        byte[] clearText = "This is another example".getBytes(StandardCharsets.UTF_8);
-
-
-        byte[] cipherText = pbeCipher.doFinal(clearText);
-
-
-        System.out.println("H");
+        byte[] dec = decCipher.doFinal(enc);
+        Assert.assertArrayEquals(data, dec);
 
     }
 
